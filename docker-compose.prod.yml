@@ -28,7 +28,7 @@ services:
   # Backend API
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile.prod
     container_name: careerbridge-backend-prod
     restart: always

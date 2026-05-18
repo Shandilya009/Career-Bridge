@@ -25,7 +25,7 @@ services:
   # Backend API
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     container_name: careerbridge-backend
     restart: unless-stopped
@@ -59,7 +59,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:5001}
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:5001/api}
     container_name: careerbridge-frontend
     restart: unless-stopped
     ports:

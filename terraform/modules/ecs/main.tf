@@ -116,7 +116,7 @@ resource "aws_ecs_task_definition" "backend" {
         },
         {
           name  = "MongoDbSettings__ConnectionString"
-          value = "mongodb://${var.documentdb_endpoint}:${var.documentdb_port}"
+          value = var.mongodb_connection_string
         },
         {
           name  = "MongoDbSettings__DatabaseName"

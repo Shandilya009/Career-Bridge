@@ -15,6 +15,7 @@ NC='\033[0m' # No Color
 AWS_REGION="${AWS_REGION:-us-east-1}"
 ENVIRONMENT="${ENVIRONMENT:-prod}"
 PROJECT_NAME="careerbridge"
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}CareerBridge AWS Deployment${NC}"
@@ -54,9 +55,9 @@ echo -e "${GREEN}Successfully logged into ECR${NC}"
 echo ""
 
 echo -e "${YELLOW}Step 3: Building Backend Docker Image${NC}"
-docker build -t ${PROJECT_NAME}-backend:latest -f Dockerfile .
+docker build -t ${PROJECT_NAME}-backend:latest -f backend/Dockerfile ./backend
 docker tag ${PROJECT_NAME}-backend:latest ${BACKEND_ECR_REPO}:latest
-docker tag ${PROJECT_NAME}-backend:latest ${BACKEND_ECR_REPO}:$(date +%Y%m%d-%H%M%S)
+docker tag ${PROJECT_NAME}-backend:latest ${BACKEND_ECR_REPO}:${TIMESTAMP}
 echo -e "${GREEN}Backend image built successfully${NC}"
 echo ""
 
@@ -64,20 +65,20 @@ echo -e "${YELLOW}Step 4: Building Frontend Docker Image${NC}"
 cd frontend
 docker build -t ${PROJECT_NAME}-frontend:latest -f Dockerfile .
 docker tag ${PROJECT_NAME}-frontend:latest ${FRONTEND_ECR_REPO}:latest
-docker tag ${PROJECT_NAME}-frontend:latest ${FRONTEND_ECR_REPO}:$(date +%Y%m%d-%H%M%S)
+docker tag ${PROJECT_NAME}-frontend:latest ${FRONTEND_ECR_REPO}:${TIMESTAMP}
 cd ..
 echo -e "${GREEN}Frontend image built successfully${NC}"
 echo ""
 
 echo -e "${YELLOW}Step 5: Pushing Backend Image to ECR${NC}"
 docker push ${BACKEND_ECR_REPO}:latest
-docker push ${BACKEND_ECR_REPO}:$(date +%Y%m%d-%H%M%S)
+docker push ${BACKEND_ECR_REPO}:${TIMESTAMP}
 echo -e "${GREEN}Backend image pushed successfully${NC}"
 echo ""
 
 echo -e "${YELLOW}Step 6: Pushing Frontend Image to ECR${NC}"
 docker push ${FRONTEND_ECR_REPO}:latest
-docker push ${FRONTEND_ECR_REPO}:$(date +%Y%m%d-%H%M%S)
+docker push ${FRONTEND_ECR_REPO}:${TIMESTAMP}
 echo -e "${GREEN}Frontend image pushed successfully${NC}"
 echo ""
 

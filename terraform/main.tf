@@ -1,119 +1,139 @@
-# Main Terraform Configuration for CareerBridge Deployment on AWS
-
 terraform {
   required_version = ">= 1.0"
-  
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.4"
+    }
   }
-
-  # Uncomment to use S3 backend for state management
-  # backend "s3" {
-  #   bucket         = "careerbridge-terraform-state"
-  #   key            = "prod/terraform.tfstate"
-  #   region         = "us-east-1"
-  #   encrypt        = true
-  #   dynamodb_table = "terraform-state-lock"
-  # }
 }
 
 provider "aws" {
   region = var.aws_region
-
   default_tags {
     tags = {
-      Project     = "CareerBridge"
+      Project     = var.project_name
       Environment = var.environment
       ManagedBy   = "Terraform"
     }
   }
 }
 
-# VPC Module
-module "vpc" {
-  source = "./modules/vpc"
-
-  environment         = var.environment
-  vpc_cidr           = var.vpc_cidr
-  availability_zones = var.availability_zones
-  project_name       = var.project_name
+# Generate a new SSH key pair
+resource "tls_private_key" "ec2_key" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
 }
 
-# Security Groups Module
-module "security" {
-  source = "./modules/security"
-
-  environment  = var.environment
-  vpc_id       = module.vpc.vpc_id
-  project_name = var.project_name
+resource "aws_key_pair" "ec2_key" {
+  key_name   = "${var.project_name}-key"
+  public_key = tls_private_key.ec2_key.public_key_openssh
 }
 
-# ECR Module
-module "ecr" {
-  source = "./modules/ecr"
-
-  environment  = var.environment
-  project_name = var.project_name
+# Save the private key locally
+resource "local_file" "private_key" {
+  content         = tls_private_key.ec2_key.private_key_pem
+  filename        = "${path.module}/../careerbridge-key.pem"
+  file_permission = "0400"
 }
 
-# Application Load Balancer Module
-module "alb" {
-  source = "./modules/alb"
-
-  environment        = var.environment
-  vpc_id            = module.vpc.vpc_id
-  public_subnet_ids = module.vpc.public_subnet_ids
-  alb_security_group_id = module.security.alb_security_group_id
-  project_name      = var.project_name
-  certificate_arn   = var.certificate_arn
+# Get default VPC
+data "aws_vpc" "default" {
+  default = true
 }
 
-# DocumentDB (MongoDB-compatible) Module
-module "documentdb" {
-  source = "./modules/documentdb"
+# Security Group for EC2
+resource "aws_security_group" "ec2_sg" {
+  name        = "${var.project_name}-ec2-sg"
+  description = "Security group for CareerBridge EC2 instance"
+  vpc_id      = data.aws_vpc.default.id
 
-  environment           = var.environment
-  vpc_id               = module.vpc.vpc_id
-  private_subnet_ids   = module.vpc.private_subnet_ids
-  db_security_group_id = module.security.documentdb_security_group_id
-  project_name         = var.project_name
-  master_username      = var.db_master_username
-  master_password      = var.db_master_password
-  instance_class       = var.db_instance_class
-  instance_count       = var.db_instance_count
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Frontend"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Backend"
+    from_port   = 5001
+    to_port     = 5001
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
-# ECS Cluster and Services Module
-module "ecs" {
-  source = "./modules/ecs"
+# Get latest Amazon Linux 2023 AMI
+data "aws_ami" "amazon_linux_2023" {
+  most_recent = true
+  owners      = ["amazon"]
 
-  environment               = var.environment
-  vpc_id                   = module.vpc.vpc_id
-  private_subnet_ids       = module.vpc.private_subnet_ids
-  ecs_security_group_id    = module.security.ecs_security_group_id
-  project_name             = var.project_name
+  filter {
+    name   = "name"
+    values = ["al2023-ami-2023.*-x86_64"]
+  }
+}
+
+# EC2 Instance
+resource "aws_instance" "app_server" {
+  ami           = data.aws_ami.amazon_linux_2023.id
+  instance_type = "t3.medium"
+  key_name      = aws_key_pair.ec2_key.key_name
   
-  # ECR Repository URLs
-  backend_ecr_url          = module.ecr.backend_repository_url
-  frontend_ecr_url         = module.ecr.frontend_repository_url
-  
-  # ALB Target Groups
-  backend_target_group_arn = module.alb.backend_target_group_arn
-  frontend_target_group_arn = module.alb.frontend_target_group_arn
-  
-  # DocumentDB Connection
-  documentdb_endpoint      = module.documentdb.cluster_endpoint
-  documentdb_port          = module.documentdb.cluster_port
-  
-  # Application Configuration
-  jwt_secret               = var.jwt_secret
-  backend_cpu              = var.backend_cpu
-  backend_memory           = var.backend_memory
-  backend_desired_count    = var.backend_desired_count
-  frontend_cpu             = var.frontend_cpu
-  frontend_memory          = var.frontend_memory
-  frontend_desired_count   = var.frontend_desired_count
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              # Update OS
+              dnf update -y
+              
+              # Install Docker
+              dnf install -y docker
+              systemctl enable docker
+              systemctl start docker
+              
+              # Install Docker Compose
+              curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              chmod +x /usr/local/bin/docker-compose
+              
+              # Add ec2-user to docker group
+              usermod -aG docker ec2-user
+              EOF
+
+  tags = {
+    Name = "${var.project_name}-server"
+  }
 }

@@ -1,0 +1,68 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+**/bin/
+**/obj/
+**/dist/
+**/build/
+**/out/
+
+# Dependencies
+**/node_modules/
+**/packages/
+
+# Logs
+*.log
+logs/
+**/logs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+**/coverage/
+**/*.test.js
+**/*.spec.js
+**/__tests__/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+azure-pipelines.yml
+
+# Misc
+*.bak
+*.old
+*.orig

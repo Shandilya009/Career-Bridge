@@ -43,15 +43,10 @@ variable "frontend_target_group_arn" {
   type        = string
 }
 
-variable "documentdb_endpoint" {
-  description = "DocumentDB cluster endpoint"
+variable "mongodb_connection_string" {
+  description = "MongoDB Connection String"
   type        = string
-}
-
-variable "documentdb_port" {
-  description = "DocumentDB cluster port"
-  type        = number
-  default     = 27017
+  sensitive   = true
 }
 
 variable "jwt_secret" {
