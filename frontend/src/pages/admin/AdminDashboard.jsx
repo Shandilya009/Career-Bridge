@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-const API_BASE = 'http://localhost:5001';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);

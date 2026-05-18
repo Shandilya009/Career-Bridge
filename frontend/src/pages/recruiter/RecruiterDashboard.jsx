@@ -93,11 +93,11 @@ const RecruiterDashboard = () => {
                   </div>
                   <div className="flex flex-col gap-1 items-end">
                     {student?.resumeUrl && (
-                      <a href={(import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001') + student.resumeUrl} target="_blank" rel="noreferrer" 
+                      <a href={(import.meta.env.VITE_API_URL || 'http://localhost:5001/api') + student.resumeUrl} target="_blank" rel="noreferrer" 
                         className="text-xs text-teal-700 bg-teal-50 px-3 py-1 rounded hover:bg-teal-100 transition font-medium whitespace-nowrap">📄 View CV</a>
                     )}
                     {student?.cgpaProofUrl && (
-                      <a href={(import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001') + student.cgpaProofUrl} target="_blank" rel="noreferrer" 
+                      <a href={(import.meta.env.VITE_API_URL || 'http://localhost:5001/api') + student.cgpaProofUrl} target="_blank" rel="noreferrer" 
                         className="text-xs text-slate-600 bg-slate-50 px-3 py-1 rounded hover:bg-slate-100 transition font-medium whitespace-nowrap">🎓 CGPA Proof</a>
                     )}
                   </div>

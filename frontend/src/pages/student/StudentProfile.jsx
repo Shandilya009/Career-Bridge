@@ -95,7 +95,7 @@ const StudentProfile = () => {
           {profile?.resumeUrl ? (
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xs text-emerald-600 font-medium">✓ Resume uploaded</span>
-              <a href={`http://localhost:5001${profile.resumeUrl}`} target="_blank" rel="noreferrer"
+              <a href={`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}${profile.resumeUrl}`} target="_blank" rel="noreferrer"
                 className="text-xs text-teal-700 underline">View</a>
             </div>
           ) : (
@@ -115,7 +115,7 @@ const StudentProfile = () => {
                 <span className={`text-xs font-medium ${profile.isCGPAVerified ? 'text-emerald-600' : 'text-amber-600'}`}>
                   {profile.isCGPAVerified ? '✓ CGPA Verified by Admin' : '⌛ Pending Admin Verification'}
                 </span>
-                <a href={`http://localhost:5001${profile.cgpaProofUrl}`} target="_blank" rel="noreferrer"
+                <a href={`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}${profile.cgpaProofUrl}`} target="_blank" rel="noreferrer"
                   className="text-xs text-teal-700 underline">View</a>
               </div>
               {profile.isCGPAVerified && profile.cgpaVerifiedAt && (

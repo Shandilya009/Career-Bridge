@@ -220,6 +220,12 @@ try
         FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
         RequestPath = "/uploads"
     });
+
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
+        RequestPath = "/api/uploads"
+    });
     
     app.UseStaticFiles();
     app.UseAuthentication();
