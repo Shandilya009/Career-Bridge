@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: yourdockerhub/careerbridge-backend:latest
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: careerbridge-config
+        - secretRef:
+            name: careerbridge-secret
+        livenessProbe:
+          httpGet:
+            path: /swagger
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10

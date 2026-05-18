@@ -1,0 +1,29 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Secrets - NEVER commit these!
+CareerBridge.API/appsettings.json
+CareerBridge.API/appsettings.Development.json
+
+# Logs
+logs/
+*.log
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+
+# macOS
+.DS_Store
+
+# Docker volumes
+mongodb_data/
+
+# Python leftovers
+__pycache__/
+*.pyc
+.trash/

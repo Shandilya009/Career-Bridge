@@ -1,0 +1,11 @@
+import api from './axios';
+export const getAdminDashboard    = ()      => api.get('/admin/statistics');
+export const getAdminStudents     = ()      => api.get('/admin/students');
+export const getAdminRecruiters   = ()      => api.get('/admin/recruiters');
+export const approveRecruiter     = (id)    => api.put(`/admin/recruiters/${id}/approve`);
+export const rejectRecruiter      = (id)    => api.put(`/admin/recruiters/${id}/reject`);
+export const getAdminJobs         = ()      => api.get('/admin/jobs');
+export const sendAnnouncement     = (data)  => api.post('/admin/announcements', data);
+export const verifyCGPA           = (id, data) => api.put(`/admin/students/${id}/verify-cgpa`, data);
+export const getPendingCGPAVerifications = () => api.get('/admin/students/pending-cgpa-verification');
+export const rejectStudentResume  = (id)    => api.put(`/admin/students/${id}/reject-resume`);

@@ -1,0 +1,54 @@
+name: CareerBridge CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test-backend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: dotnet restore CareerBridge.sln
+    - name: Build
+      run: dotnet build CareerBridge.sln --no-restore
+    - name: Test
+      run: dotnet test CareerBridge.sln --no-build --verbosity normal
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+
+  docker-build-push:
+    needs: [build-and-test-backend, build-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build Backend Image
+      run: docker build -t yourdockerhub/careerbridge-backend:latest -f Dockerfile .
+    - name: Build Frontend Image
+      run: docker build -t yourdockerhub/careerbridge-frontend:latest -f frontend/Dockerfile ./frontend
+    # - name: Push to DockerHub
+    #   run: |
+    #     docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
+    #     docker push yourdockerhub/careerbridge-backend:latest
+    #     docker push yourdockerhub/careerbridge-frontend:latest

@@ -1,0 +1,30 @@
+# Example Terraform Variables File
+# Copy this file to terraform.tfvars and fill in your values
+
+aws_region         = "us-east-1"
+environment        = "prod"
+project_name       = "careerbridge"
+vpc_cidr          = "10.0.0.0/16"
+availability_zones = ["us-east-1a", "us-east-1b"]
+
+# Database Configuration
+db_master_username = "careerbridge_admin"
+db_master_password = "CHANGE_ME_STRONG_PASSWORD_HERE"
+db_instance_class  = "db.t3.medium"
+db_instance_count  = 2
+
+# Application Configuration
+jwt_secret = "CHANGE_ME_STRONG_JWT_SECRET_HERE"
+
+# Optional: ACM Certificate ARN for HTTPS
+# certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/xxxxx"
+
+# Backend Configuration
+backend_cpu           = 512
+backend_memory        = 1024
+backend_desired_count = 2
+
+# Frontend Configuration
+frontend_cpu           = 256
+frontend_memory        = 512
+frontend_desired_count = 2
