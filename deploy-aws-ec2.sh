@@ -1,6 +1,6 @@
 #!/bin/bash
 
-EC2_IP="54.83.130.205"
+EC2_IP="13.60.206.140"
 KEY_FILE="/Users/shubham_shandilya/Documents/placementportal /careerbridge-key.pem"
 
 echo "🚀 Deploying CareerBridge to AWS EC2..."
@@ -38,9 +38,9 @@ sudo docker-compose up --build -d
 echo "✅ Deployment complete!"
 echo ""
 echo "🌐 Access your application:"
-echo "   Frontend: http://54.83.130.205:3000"
-echo "   Backend:  http://54.83.130.205:5001"
-echo "   Swagger:  http://54.83.130.205:5001/swagger"
+echo "   Frontend: http://13.60.206.140:3000"
+echo "   Backend:  http://13.60.206.140:5001"
+echo "   Swagger:  http://13.60.206.140:5001/swagger"
 ENDSSH
 
 # Cleanup
